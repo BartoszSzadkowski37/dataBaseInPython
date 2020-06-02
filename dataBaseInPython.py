@@ -37,14 +37,14 @@ cur.execute('INSERT INTO myClass VALUES(NULL, ?, ?);', ('1A', 'matematyczny'))
 cur.execute('INSERT INTO myClass VALUES(NULL, ?, ?);', ('1B', 'humanistyczny'))
 
 # we perform SQL query which take ID 1A class from myClass table
-cur.execute('SELECT id FROM myClass WHERE nazwa = ?', ('1A',))
-klasa_id = cur.fetchone()[0]
-
+cur.execute('SELECT id FROM myClass WHERE nazwa = ?', ('1A',)) # -!! remember about comma when you put only single argument, with comma you create 1-element tuple
+# cur.fetchone() return current table row, we can specify by [value] exact field from the row ex. cur.fetchone()[1]
+klasa_id = list(cur.fetchone())
 # "uczniowie" tuple include tuple with students data
 uczniowie = (
-        (None, 'Tomasz', 'Nowak', myClass_id),
-        (None, 'Jan', 'Kos', myClass_id),
-        (None, 'Piotr', 'Kowalski', myClass_id)
+        (None, 'Tomasz', 'Nowak', 1),
+        (None, 'Jan', 'Kos', 2),
+        (None, 'Piotr', 'Kowalski', 1)
         )
 
 # adding multiple records
@@ -53,4 +53,16 @@ cur.executemany('INSERT INTO uczen VALUES(?,?,?,?)', uczniowie)
 # commit in DB
 con.commit()
 
-
+# GETTING DATA FROM DB
+def readData():
+    # function get and print dates from DB
+    cur.execute(
+            '''
+            SELECT uczen.id, imie, nazwisko, nazwa, profil FROM uczen, myClass 
+            WHERE uczen.myClass_id=myClass.id
+            ''')
+    uczniowie = cur.fetchall()
+    for uczen in uczniowie:
+        print(uczen['id'], uczen['imie'], uczen['nazwisko'], uczen['nazwa'], uczen['profil'])
+    print()
+readData()
