@@ -66,3 +66,13 @@ def readData():
         print(uczen['id'], uczen['imie'], uczen['nazwisko'], uczen['nazwa'], uczen['profil'])
     print()
 readData()
+
+# MODIFICATION AND DELETE DATA
+cur.execute('SELECT id FROM myClass WHERE nazwa = ?', ('1B', ))
+klasa_id = cur.fetchone()[0]
+cur.execute('UPDATE uczen SET myClass_id=? WHERE id=?', (klasa_id, 2))
+
+
+cur.execute('DELETE FROM uczen WHERE id=?', (3,))
+
+readData()
