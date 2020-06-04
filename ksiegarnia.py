@@ -39,8 +39,10 @@ cur.execute(
         idOrder INTEGER PRIMARY KEY ASC,
         idClient INTEGER NOT NULL,
         idBook INTEGER NOT NULL,
-        data DATE NOT NULL,
-        state VARCHAR(250) NOT NULL
+        date DATE NOT NULL,
+        state VARCHAR(250) NOT NULL,
+        FOREIGN KEY(idClient) REFERENCES clients(idClient),
+        FOREIGN KEY(idBook) REFERENCES books(idBook)
         )''')
 
 con.commit()
@@ -58,6 +60,20 @@ def addRecords():
         surname = pyip.inputStr('surname:')
         city = pyip.inputStr('city:')
         cur.execute('INSERT INTO clients VALUES(NULL, ?, ?, ?);', (name, surname, city))
+    elif userInput == 'books':
+        authorName = pyip.inputStr('author name:', blank=True)
+        authorSurname = pyip.inputStr('author surname:', blank=True)
+        title = pyip.inputStr('title of the book:')
+        price = pyip.inputFloat('price:')
+        cur.execute('INSERT INTO books VALUES(NULL, ?, ?, ?, ?);', (authorName, authorSurname, title, price))
+    elif userInput == 'orders':
+        idClient = pyip.inputInt('client\'s ID:')
+        idBook = pyip.inputInt('book\'s ID:')
+        date = pyip.inputStr('date: (YYYY-MM-DD)', allowRegexes=[r'\d\d\d\d-\d\d-\d\d'])
+        state = pyip.inputChoice(['oczekiwanie', 'wyslano'], 'state: (oczekiwanie/wyslano)')
+        cur.execute('INSERT INTO orders VALUES(NULL, ?, ?, ?, ?);', (idClient, idBook, date, state))
+        
+    
 
     con.commit()
 
@@ -73,13 +89,31 @@ def getRecords():
         for client in clients:
             print(client['idClient'], client['name'], client['surname'], client['city'])
         print()
+    elif userInput == 'books':
+        cur.execute('SELECT * FROM books')
+        books = cur.fetchall()
+        for book in books:
+            print(book['idBook'], book['authorName'], book['authorSurname'], book['title'], book['price'])
+        print()
+    elif userInput == 'orders':
+        cur.execute('SELECT * FROM orders')
+        orders = cur.fetchall()
+        for order in orders:
+            print(order['idOrder'], order['idClient'], order['idBook'], order['date'], order['state'])
+        print()
+mainLoop = True
 
-printMenu()
+while mainLoop:
+    printMenu()
 
-userInput = pyip.inputChoice(['1', '2', '3'], 'Select number: ')
+    userInput = pyip.inputChoice(['1', '2', '3'], 'Select number: ')
 
-if userInput == '1':
-    addRecords()
+    if userInput == '1':
+        addRecords()
 
-elif userInput == '2':
-    getRecords()
+    elif userInput == '2':
+        getRecords()
+
+    choice = pyip.inputYesNo('exit?(y/n)')
+    if choice == 'yes':
+        mainLoop = False
